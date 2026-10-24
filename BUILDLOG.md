@@ -38,7 +38,7 @@ Newest entries at the top. Maintained by Folk (AI assistant) with each code chan
 ---
 
 ## Known issues / next steps
-- [ ] Error seen once after page refresh ("Gemini cannot perform that request") — not one of our error messages; watching for recurrence, need exact screenshot.
+- [x] RESOLVED 2026-10-24 ~10pm: transient "Gemini could not complete the request" errors during testing. Cause was most likely Gemini free-tier rate limiting and/or oversized history payloads. Fixed by: (1) Worker now returns the real reason (rate limit vs 400 rejection) instead of a vague message, (2) history texts capped at 800 chars each. User confirmed site works again (function answer, honest 'I don't know your name yet', New chat button works).
 - [ ] Memory is per-browser only; true saved memory (server-side) is a future milestone.
 - [ ] `agent.py` is an empty placeholder.
 - [ ] Stray `landing.html` from an Android Harness test is in the workspace, not committed.
