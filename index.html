@@ -196,6 +196,7 @@ white-space: pre-wrap;
   </div>    <script>  
     const WORKER_URL = "https://jeff-ai-agentdev.jeffokocha007.workers.dev/";  
     const chatEl = document.getElementById("chat");  
+    const history = [];    
     const inputEl = document.getElementById("msg-input");  
     const sendBtn = document.getElementById("send-btn");  
   
@@ -264,6 +265,7 @@ white-space: pre-wrap;
       if (!message) return;  
   
       addMessage(message, "user");  
+      history.push({ role: "user", text: message });  
       inputEl.value = "";  
       inputEl.style.height = "auto";  
       sendBtn.disabled = true;  
@@ -273,7 +275,7 @@ white-space: pre-wrap;
         const res = await fetch(WORKER_URL, {  
           method: "POST",  
           headers: { "Content-Type": "application/json" },  
-          body: JSON.stringify({ message: message })  
+          body: JSON.stringify({ message: message, history: history.slice(-12) })  
         });  
   
         removeTyping();  
@@ -293,6 +295,8 @@ white-space: pre-wrap;
         if (data && data.response) {  
           const isTask = data.mode === "task";  
           addMessage(data.response, "ai", isTask);  
+          history.push({ role: "model", text: data.response });  
+          if (history.length > 24) history.splice(0, history.length - 24);  
         } else {  
           addError("Received an empty or invalid response from JEFF.");  
         }  
