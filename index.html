@@ -181,6 +181,17 @@ white-space: pre-wrap;
       font-size: 0.8rem;  
       cursor: pointer;  
     }  
+    #newChatBtn {  
+      margin-top: 12px;  
+      padding: 10px 16px;  
+      border-radius: 12px;  
+      border: 1px solid var(--border);  
+      background: transparent;  
+      color: var(--text);  
+      font: inherit;  
+      font-size: 0.85rem;  
+      cursor: pointer;  
+    }  
   </style>  
 </head>  
 <body>    <header>  
@@ -189,14 +200,28 @@ white-space: pre-wrap;
       <h1>JEFF AI — Agent 001</h1>  
       <p>Your personal AI agent</p>  
     </div>  
-  </header>    <div id="chat"></div>    <div id="input-area">  
+    <button id="newChatBtn" type="button">+ New chat</button>  
+    </header>    <div id="chat"></div>    <div id="input-area">  
     <textarea id="msg-input" rows="1" placeholder="Type a message..."  
       autocomplete="off"></textarea>  
     <button id="send-btn">Send</button>  
   </div>    <script>  
     const WORKER_URL = "https://jeff-ai-agentdev.jeffokocha007.workers.dev/";  
     const chatEl = document.getElementById("chat");  
-    const history = [];    
+    let history = [];  
+    function saveHistory() {  
+      try { localStorage.setItem("jeff_history", JSON.stringify(history.slice(-24))); } catch (e) {}  
+    }  
+    function newChat() {  
+      history = [];  
+      try { localStorage.removeItem("jeff_history"); } catch (e) {}  
+      chatEl.innerHTML = "";  
+      if (history.length) {  
+      history.forEach(function(h) { addMessage(h.text, h.role === "user" ? "user" : "ai"); });  
+    } else {  
+      addMessage("Hi, I'm JEFF AI \u2014 Agent 001. How can I help you today?", "ai");  
+    }  
+    }    
     const inputEl = document.getElementById("msg-input");  
     const sendBtn = document.getElementById("send-btn");  
   
@@ -266,6 +291,7 @@ white-space: pre-wrap;
   
       addMessage(message, "user");  
       history.push({ role: "user", text: message });  
+      saveHistory();  
       inputEl.value = "";  
       inputEl.style.height = "auto";  
       sendBtn.disabled = true;  
@@ -297,6 +323,7 @@ white-space: pre-wrap;
           addMessage(data.response, "ai", isTask);  
           history.push({ role: "model", text: data.response });  
           if (history.length > 24) history.splice(0, history.length - 24);  
+          saveHistory();  
         } else {  
           addError("Received an empty or invalid response from JEFF.");  
         }  
@@ -323,6 +350,8 @@ white-space: pre-wrap;
     });  
   
     // Auto-resize textarea  
+    document.getElementById("newChatBtn").addEventListener("click", newChat);  
+  
     inputEl.addEventListener("input", function() {  
       this.style.height = "auto";  
       this.style.height = Math.min(this.scrollHeight, 120) + "px";  
